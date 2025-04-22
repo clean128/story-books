@@ -11,6 +11,8 @@ import { StoryForm } from "./components/story-form";
 import type { Story, StoryBody } from "./types/story";
 import "react-toastify/dist/ReactToastify.css";
 
+const BACKEND_URL = "https://6aa1-95-143-193-150.ngrok-free.app/api";
+
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [stories, setStories] = useState<Story[]>([]);
@@ -33,7 +35,7 @@ export default function App() {
 
   const getAllStories = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/story/list");
+      const response = await axios.get(BACKEND_URL + "/story/list");
       const fetchedStories = response.data.map((story: any) => ({
         ...story,
         id: story._id,
@@ -63,10 +65,7 @@ export default function App() {
     };
 
     try {
-      const res = await axios.post(
-        "http://localhost:8080/api/story/add",
-        newStory
-      );
+      const res = await axios.post(BACKEND_URL + "/story/add", newStory);
 
       if (res.data.status === "error") {
         toast.error(res.data.message, {
@@ -106,7 +105,7 @@ export default function App() {
       return;
     }
     try {
-      const res = await axios.post("http://localhost:8080/api/story/delete", {
+      const res = await axios.post(BACKEND_URL + "/story/delete", {
         storyId: id,
       });
 
@@ -130,7 +129,7 @@ export default function App() {
 
   const handleAdminLogin = async (password: string) => {
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/signin", {
+      const res = await axios.post(BACKEND_URL + "/auth/signin", {
         password: password,
       });
 
