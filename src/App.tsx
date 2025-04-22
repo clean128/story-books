@@ -1,50 +1,177 @@
-import React from 'react';
 import { Button, Card, CardBody, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { StoryCard } from './components/story-card';
-import { StoryForm } from './components/story-form';
-import { AdminLogin } from './components/admin-login';
-import type { Story } from './types/story';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
-// In a real app, this would be an environment variable
-const ADMIN_PASSWORD = "admin123";
+import { AdminLogin } from "./components/admin-login";
+import { AdminLogout } from "./components/admin-logout";
+import { StoryCard } from "./components/story-card";
+import { StoryForm } from "./components/story-form";
+import type { Story, StoryBody } from "./types/story";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
-  const [stories, setStories] = React.useState<Story[]>(() => {
-    const saved = localStorage.getItem('stories');
-    return saved ? JSON.parse(saved) : [];
-  });
-  
-  const [isAdmin, setIsAdmin] = React.useState(false);
-  const { isOpen: isFormOpen, onOpen: onFormOpen, onClose: onFormClose } = useDisclosure();
-  const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [stories, setStories] = useState<Story[]>([]);
 
-  React.useEffect(() => {
-    localStorage.setItem('stories', JSON.stringify(stories));
-  }, [stories]);
+  const {
+    isOpen: isFormOpen,
+    onOpen: onFormOpen,
+    onClose: onFormClose,
+  } = useDisclosure();
+  const {
+    isOpen: isLoginOpen,
+    onOpen: onLoginOpen,
+    onClose: onLoginClose,
+  } = useDisclosure();
+  const {
+    isOpen: isLogoutOpen,
+    onOpen: onLogoutOpen,
+    onClose: onLogoutClose,
+  } = useDisclosure();
 
-  const handleStorySubmit = (storyData: { content: string; title?: string; tag?: string }) => {
-    const newStory: Story = {
-      id: crypto.randomUUID(),
+  const getAllStories = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/story/list");
+      const fetchedStories = response.data.map((story: any) => ({
+        ...story,
+        id: story._id,
+      })) as Story[];
+
+      setStories(fetchedStories);
+    } catch (error) {
+      toast.error("Failed to fetch stories", {
+        position: "bottom-right",
+        className: "bg-error text-white",
+      });
+      console.error("Error fetching stories:", error);
+      return;
+    }
+  };
+
+  const handleStorySubmit = async (storyData: {
+    content: string;
+    title: string;
+    tag: string;
+  }) => {
+    const newStory: StoryBody = {
       content: storyData.content,
       title: storyData.title,
       tag: storyData.tag,
       createdAt: new Date(),
     };
-    
-    setStories(prev => [newStory, ...prev]);
-  };
 
-  const handleDelete = (id: string) => {
-    setStories(prev => prev.filter(story => story.id !== id));
-  };
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/api/story/add",
+        newStory
+      );
 
-  const handleAdminLogin = (password: string) => {
-    if (password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      onLoginClose();
+      if (res.data.status === "error") {
+        toast.error(res.data.message, {
+          position: "bottom-right",
+          className: "bg-error text-white",
+        });
+        return;
+      }
+
+      setStories((prev) => [
+        {
+          ...newStory,
+          id: res.data._id,
+        } as Story,
+        ...prev,
+      ]);
+      toast.success(res.data.message, {
+        position: "bottom-right",
+        className: "bg-success text-white",
+      });
+    } catch (error: any) {
+      toast.error(error.message, {
+        position: "bottom-right",
+        className: "bg-error text-white",
+      });
+      console.error("Error adding stories:", error);
+      return;
     }
   };
+
+  const handleDelete = async (id: string) => {
+    if (!localStorage.getItem("accessToken")) {
+      toast.error("You must sign in as admin.", {
+        position: "bottom-right",
+        className: "bg-error text-white",
+      });
+      return;
+    }
+    try {
+      const res = await axios.post("http://localhost:8080/api/story/delete", {
+        storyId: id,
+      });
+
+      if (res.data.status === "success") {
+        setStories((prev) => prev.filter((story) => story.id !== id));
+        toast.success(res.data.message, {
+          position: "bottom-right",
+          className: "bg-success text-white",
+        });
+        return;
+      }
+    } catch (error: any) {
+      toast.error(error.message, {
+        position: "bottom-right",
+        className: "bg-error text-white",
+      });
+      console.error("Error deleting stories:", error);
+      return;
+    }
+  };
+
+  const handleAdminLogin = async (password: string) => {
+    try {
+      const res = await axios.post("http://localhost:8080/api/auth/signin", {
+        password: password,
+      });
+
+      if (res.data.accessToken) {
+        localStorage.setItem("accessToken", res.data.accessToken);
+        toast.success(res.data.message, {
+          position: "bottom-right",
+          className: "bg-success text-white",
+        });
+        setIsAdmin(true);
+        onLoginClose();
+        return;
+      }
+    } catch (error: any) {
+      toast.error(error.message, {
+        position: "bottom-right",
+        className: "bg-error text-white",
+      });
+      console.error("Error:", error);
+      return;
+    }
+  };
+
+  const handleLogout = () => {
+    if (localStorage.getItem("accessToken")) {
+      localStorage.removeItem("accessToken");
+      setIsAdmin(false);
+      onLogoutClose();
+      toast.success("Logged out successfully", {
+        position: "bottom-right",
+        className: "bg-success text-white",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      setIsAdmin(true);
+    }
+    getAllStories();
+  }, []);
 
   return (
     <main className="min-h-screen bg-background pb-20">
@@ -62,7 +189,16 @@ export default function App() {
             >
               Share Story
             </Button>
-            {!isAdmin && (
+            {isAdmin ? (
+              <Button
+                isIconOnly
+                variant="light"
+                onPress={onLogoutOpen}
+                className="text-default-400"
+              >
+                <Icon icon="lucide:log-out" />
+              </Button>
+            ) : (
               <Button
                 isIconOnly
                 variant="light"
@@ -89,7 +225,7 @@ export default function App() {
         </Card>
 
         <div className="space-y-6">
-          {stories.map(story => (
+          {stories.map((story) => (
             <StoryCard
               key={story.id}
               story={story}
@@ -97,10 +233,13 @@ export default function App() {
               onDelete={handleDelete}
             />
           ))}
-          
+
           {stories.length === 0 && (
             <div className="text-center text-foreground/60 py-12">
-              <Icon icon="lucide:book-heart" className="w-12 h-12 mx-auto mb-4" />
+              <Icon
+                icon="lucide:book-heart"
+                className="w-12 h-12 mx-auto mb-4"
+              />
               <p>No stories yet. Be the first to share!</p>
             </div>
           )}
@@ -117,6 +256,22 @@ export default function App() {
         isOpen={isLoginOpen}
         onClose={onLoginClose}
         onLogin={handleAdminLogin}
+      />
+
+      <AdminLogout
+        isOpen={isLogoutOpen}
+        onClose={onLogoutClose}
+        onLogout={handleLogout}
+      />
+
+      <ToastContainer
+        position="bottom-right"
+        icon={false}
+        hideProgressBar={true}
+        autoClose={3000}
+        transition={Bounce}
+        closeOnClick
+        pauseOnHover={false}
       />
     </main>
   );

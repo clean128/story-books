@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 import { Card, CardBody, CardFooter, Button, Chip } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { format } from 'timeago.js';
-import type { Story } from '../types/story';
+import { format } from "timeago.js";
+import type { Story } from "../types/story";
 
 interface StoryCardProps {
   story: Story;
@@ -10,28 +10,22 @@ interface StoryCardProps {
   onDelete?: (id: string) => void;
 }
 
-export const StoryCard: React.FC<StoryCardProps> = ({ story, isAdmin, onDelete }) => {
+export const StoryCard: React.FC<StoryCardProps> = ({
+  story,
+  isAdmin,
+  onDelete,
+}) => {
   return (
-    <Card 
-      className="w-full"
-      isHoverable
-    >
+    <Card className="w-full" isHoverable>
       <CardBody className="gap-3">
         {story.title && (
           <h3 className="story-title text-2xl font-semibold text-primary-600">
             {story.title}
           </h3>
         )}
-        <p className="text-foreground/90 leading-relaxed">
-          {story.content}
-        </p>
+        <p className="text-foreground/90 leading-relaxed">{story.content}</p>
         {story.tag && (
-          <Chip 
-            color="primary" 
-            variant="flat" 
-            size="sm"
-            className="self-start"
-          >
+          <Chip color="primary" variant="flat" size="sm" className="self-start">
             {story.tag}
           </Chip>
         )}

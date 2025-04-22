@@ -45,6 +45,8 @@ export default {
               DEFAULT: "#FF2E93",
               foreground: "#FFFFFF",
             },
+            error: "#df0000",
+            success: "#42be65",
           },
         },
       },
