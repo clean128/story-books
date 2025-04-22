@@ -35,13 +35,20 @@ export default function App() {
 
   const getAllStories = async () => {
     try {
-      const response = await axios.get(BACKEND_URL + "/story/list");
-      const fetchedStories = response.data.map((story: any) => ({
-        ...story,
-        id: story._id,
-      })) as Story[];
+      const response = await axios.get(BACKEND_URL + "/story/list", {
+        headers: {
+          "ngrok-skip-browser-warning": "123",
+        },
+      });
 
-      setStories(fetchedStories);
+      if (response.data.length > 0) {
+        const fetchedStories = response.data.map((story: any) => ({
+          ...story,
+          id: story._id,
+        })) as Story[];
+
+        setStories(fetchedStories);
+      }
     } catch (error) {
       toast.error("Failed to fetch stories", {
         position: "bottom-right",
