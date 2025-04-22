@@ -10,8 +10,9 @@ import { StoryCard } from "./components/story-card";
 import { StoryForm } from "./components/story-form";
 import type { Story, StoryBody } from "./types/story";
 import "react-toastify/dist/ReactToastify.css";
+import { UpdatePassword } from "./components/update-password";
 
-const BACKEND_URL = "https://6aa1-95-143-193-150.ngrok-free.app/api";
+const BACKEND_URL = "http://localhost:8080/api";
 
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -31,6 +32,11 @@ export default function App() {
     isOpen: isLogoutOpen,
     onOpen: onLogoutOpen,
     onClose: onLogoutClose,
+  } = useDisclosure();
+  const {
+    isOpen: isUpdatingPasswordOpen,
+    onOpen: onUpdatingPasswordOpen,
+    onClose: onUpdatingPasswordClose,
   } = useDisclosure();
 
   const getAllStories = async () => {
@@ -55,7 +61,7 @@ export default function App() {
         className: "bg-error text-white",
       });
       console.error("Error fetching stories:", error);
-      return;
+      throw error;
     }
   };
 
@@ -99,7 +105,7 @@ export default function App() {
         className: "bg-error text-white",
       });
       console.error("Error adding stories:", error);
-      return;
+      throw error;
     }
   };
 
@@ -123,6 +129,12 @@ export default function App() {
           className: "bg-success text-white",
         });
         return;
+      } else {
+        toast.error(res.data.message, {
+          position: "bottom-right",
+          className: "bg-error text-white",
+        });
+        return;
       }
     } catch (error: any) {
       toast.error(error.message, {
@@ -130,7 +142,7 @@ export default function App() {
         className: "bg-error text-white",
       });
       console.error("Error deleting stories:", error);
-      return;
+      throw error;
     }
   };
 
@@ -149,6 +161,12 @@ export default function App() {
         setIsAdmin(true);
         onLoginClose();
         return;
+      } else {
+        toast.error(res.data.message, {
+          position: "bottom-right",
+          className: "bg-error text-white",
+        });
+        return;
       }
     } catch (error: any) {
       toast.error(error.message, {
@@ -156,7 +174,7 @@ export default function App() {
         className: "bg-error text-white",
       });
       console.error("Error:", error);
-      return;
+      throw error;
     }
   };
 
@@ -169,6 +187,40 @@ export default function App() {
         position: "bottom-right",
         className: "bg-success text-white",
       });
+    }
+  };
+
+  const handleUpdatePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    try {
+      const response = await axios.post(BACKEND_URL + "/password", {
+        currentPassword,
+        newPassword,
+      });
+
+      if (response.data.status === "success") {
+        toast.success("Password updated successfully", {
+          position: "bottom-right",
+          className: "bg-success text-white",
+        });
+        onUpdatingPasswordClose();
+        return;
+      } else {
+        toast.error(response.data.message, {
+          position: "bottom-right",
+          className: "bg-error text-white",
+        });
+        return;
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update password", {
+        position: "bottom-right",
+        className: "bg-error text-white",
+      });
+      console.error("Error updating password:", error);
+      throw error;
     }
   };
 
@@ -196,14 +248,25 @@ export default function App() {
               Share Story
             </Button>
             {isAdmin ? (
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={onLogoutOpen}
-                className="text-default-400"
-              >
-                <Icon icon="lucide:log-out" />
-              </Button>
+              <div className="pl-2 flex gap-2">
+                <Button
+                  isIconOnly
+                  variant="light"
+                  onPress={onUpdatingPasswordOpen}
+                  className="text-default-400"
+                >
+                  <Icon icon="lucide:key" />
+                </Button>
+
+                <Button
+                  isIconOnly
+                  variant="light"
+                  onPress={onLogoutOpen}
+                  className="text-default-400"
+                >
+                  <Icon icon="lucide:log-out" />
+                </Button>
+              </div>
             ) : (
               <Button
                 isIconOnly
@@ -268,6 +331,12 @@ export default function App() {
         isOpen={isLogoutOpen}
         onClose={onLogoutClose}
         onLogout={handleLogout}
+      />
+
+      <UpdatePassword
+        isOpen={isUpdatingPasswordOpen}
+        onClose={onUpdatingPasswordClose}
+        onUpdatePassword={handleUpdatePassword}
       />
 
       <ToastContainer
