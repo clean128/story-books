@@ -53,7 +53,13 @@ export default function App() {
           id: story._id,
         })) as Story[];
 
-        setStories(fetchedStories);
+        setStories(
+          fetchedStories.sort((a, b) => {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          })
+        );
       }
     } catch (error) {
       toast.error("Failed to fetch stories", {
