@@ -12,7 +12,7 @@ import type { Story, StoryBody } from "./types/story";
 import "react-toastify/dist/ReactToastify.css";
 import { UpdatePassword } from "./components/update-password";
 
-const BACKEND_URL = "http://localhost:8080/api";
+const BACKEND_URL = "https://anemo-230k.onrender.com/api";
 
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
