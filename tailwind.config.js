@@ -20,7 +20,7 @@ export default {
       themes: {
         light: {
           colors: {
-            background: "#FFF8F8",
+            background: "#FFF0F7",
             foreground: "#4B3F3F",
             focus: "#FF2E93",
             content1: {

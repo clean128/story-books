@@ -235,9 +235,7 @@ export default function App() {
     <main className="min-h-screen bg-background pb-20">
       <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md z-50 border-b border-primary-100">
         <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="story-title text-3xl text-primary-500">
-            Small Actions, Big Impact
-          </h1>
+          <h1 className="story-title text-4xl text-primary-500 pl-6">Anemo</h1>
           <div className="flex gap-2">
             <Button
               color="primary"
