@@ -239,11 +239,11 @@ export default function App() {
 
   return (
     <main className="min-h-screen bg-background pb-20">
-      {/* Header with gradient */}
-      <nav className="fixed top-0 w-full bg-gradient-pink backdrop-blur-md z-50 shadow-md">
+      {/* Updated fixed header with glass effect */}
+      <nav className="fixed top-0 w-full bg-primary-500/80 backdrop-blur-md z-50 shadow-md">
         <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <Icon icon="lucide:feather" className="text-white text-2xl mr-2" />
+            <Icon icon="lucide:wind" className="text-white text-2xl mr-2" />
             <h1 className="story-title text-4xl text-white font-display">
               Anemo
             </h1>
@@ -264,7 +264,7 @@ export default function App() {
                   isIconOnly
                   variant="flat"
                   onPress={onUpdatingPasswordOpen}
-                  className="text-white hover:bg-primary-400/50"
+                  className="text-white hover:bg-primary-400"
                 >
                   <Icon icon="lucide:key" />
                 </Button>
@@ -273,7 +273,7 @@ export default function App() {
                   isIconOnly
                   variant="flat"
                   onPress={onLogoutOpen}
-                  className="text-white hover:bg-primary-400/50"
+                  className="text-white hover:bg-primary-400"
                 >
                   <Icon icon="lucide:log-out" />
                 </Button>
@@ -283,7 +283,7 @@ export default function App() {
                 isIconOnly
                 variant="flat"
                 onPress={onLoginOpen}
-                className="text-white hover:bg-primary-400/50"
+                className="text-white hover:bg-primary-400"
               >
                 <Icon icon="lucide:settings" />
               </Button>
@@ -292,7 +292,7 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Hero section with image and gradient overlay */}
+      {/* Hero image section */}
       <div
         className="relative pt-32 pb-32 flex content-center items-center justify-center"
         style={{ minHeight: "50vh" }}
@@ -300,11 +300,12 @@ export default function App() {
         <div
           className="absolute top-0 w-full h-full bg-center bg-cover"
           style={{
-            backgroundImage: "url('/hero.jpg')",
+            backgroundImage: "url('./image/hero.png')",
             backgroundPosition: "center",
+            filter: "brightness(0.9)",
           }}
         >
-          <span className="w-full h-full absolute opacity-70 bg-gradient-mixed"></span>
+          <span className="w-full h-full absolute opacity-50 bg-primary-500"></span>
         </div>
         <div className="container relative mx-auto">
           <div className="items-center flex flex-wrap">
@@ -318,7 +319,7 @@ export default function App() {
                   your story anonymously and inspire others.
                 </p>
                 <Button
-                  className="mt-8 bg-white text-primary-500 font-bold shadow-lg hover:shadow-xl transition-all"
+                  className="mt-8 bg-white text-primary-500 font-bold shadow-lg hover:shadow-xl"
                   size="lg"
                   onPress={onFormOpen}
                   startContent={<Icon icon="lucide:feather" />}
@@ -332,16 +333,14 @@ export default function App() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-12">
-        <Card className="mb-8 border border-content2-border bg-content2">
-          <CardBody className="text-center space-y-2">
-            <p className="text-xl text-foreground/90">
-              Welcome to a space where small actions create ripples of change.
-            </p>
-            <p className="text-foreground/60">
-              Share your story anonymously and inspire others.
-            </p>
-          </CardBody>
-        </Card>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-primary-700 mb-2">
+            Community Stories
+          </h2>
+          <p className="text-foreground/70">
+            Read and be inspired by stories from our community
+          </p>
+        </div>
 
         <div className="space-y-6">
           {stories.map((story) => (
@@ -354,11 +353,11 @@ export default function App() {
           ))}
 
           {stories.length === 0 && (
-            <Card className="p-12 bg-content3 border border-content3-border">
+            <Card className="p-12 bg-content2/50 border border-primary-200">
               <CardBody className="text-center text-foreground/60 py-12">
                 <Icon
                   icon="lucide:book-heart"
-                  className="w-16 h-16 mx-auto mb-4 text-accent-300"
+                  className="w-16 h-16 mx-auto mb-4 text-primary-300"
                 />
                 <p className="text-xl">
                   No stories yet. Be the first to share!
